@@ -23,8 +23,16 @@ def main():
         # Place the brick in the tableau
         brick_placed = False
         while brick_placed == False:
-            pile_idx = int(input(f"Select pile to place the brick (1 to 4).\n"))
-            brick_placed = tableau.place_brick(new_brick, pile_idx)
+            cmd = input("Select T to place the brick into the tableau, or F to place it into the foundation.\n")
+            try:
+                if cmd.upper() == "T":
+                    pile_idx = int(input("Select pile to place the brick (1 to 4).\n"))
+                    brick_placed = tableau.place_new_brick(new_brick, pile_idx)
+                elif cmd.upper() == "F":
+                    stack_idx = int(input("Select foundation stack to place the brick (1 to 6).\n"))
+                    brick_placed = foundation.add_brick(new_brick, stack_idx)
+            except ValueError:
+                continue
 
         print_table(tableau, foundation)
 
