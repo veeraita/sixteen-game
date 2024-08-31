@@ -1,1 +1,2 @@
-MAX_CARD = 3
+MAX_CARD = 16
+N_STACKS = 6

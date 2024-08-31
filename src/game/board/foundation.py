@@ -1,8 +1,10 @@
+from config import N_STACKS
+
 class Foundation():
 
     def __init__(self):
         self.n_piles = 0
-        self.stacks = {i: [] for i in range(1, 7)}
+        self.stacks = {i: [] for i in range(1, N_STACKS + 1)}
 
     def get_top_brick(self, stack_idx):
         stack = self.stacks[stack_idx]
@@ -37,4 +39,4 @@ class Foundation():
         return brick_placed
 
     def __str__(self):
-        return f"Foundation\n" + "\t".join([f"{self.get_top_brick(i)}" for i in self.stacks.keys()])
+        return f"Foundation\n\t" + "\t".join([f"{self.get_top_brick(i)}" for i in self.stacks.keys()])
