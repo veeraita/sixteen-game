@@ -16,26 +16,25 @@ class Foundation():
             return False
         return all([self.get_top_brick(i).value == 16 for i in self.stacks.keys()])
     
-    def add_brick(self, brick, stack_idx):
-        if (stack_idx < 1) or (stack_idx > 6):
-            print("Error: invalid stack number.")
-            return False
+    def add_brick(self, brick):
+        brick_placed = False
+        for stack_idx in self.stacks.keys():
+            stack = self.stacks[stack_idx]
         
-        stack = self.stacks[stack_idx]
+            if (len(stack) == 0) and brick.value == 1:
+                stack.append(brick)
+                print(f"A new foundation stack started.")
+                brick_placed = True
+                break
+            elif (len(stack) > 0) and (brick.value == stack[-1].value + 1):
+                stack.append(brick)
+                print(f"Brick {brick} added to stack {stack_idx}.")
+                brick_placed = True
+                break
+        if not brick_placed:
+            print("Cannot place the brick in the foundation.")
         
-        if (len(stack) == 0) and brick.value == 1:
-            stack.append(brick)
-            print(f"A new foundation stack started.")
-            return True
-        elif (len(stack) > 0) and (brick.value == stack[-1].value + 1):
-            stack.append(brick)
-            print(f"Brick {brick} added to stack {stack_idx}.")
-            return True
-        else:
-            print("Cannot place the card here.")
-            return False
+        return brick_placed
 
     def __str__(self):
-        top_bricks = [self.get_top_brick(i) for i in self.stacks.keys()]
-        foundation_str_rows = ["Foundation\n\t1\t2\t3\t4\t5\t6"]
         return f"Foundation\n" + "\t".join([f"{self.get_top_brick(i)}" for i in self.stacks.keys()])

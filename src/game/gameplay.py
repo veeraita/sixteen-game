@@ -17,26 +17,41 @@ def main():
     foundation = Foundation()
 
     while len(urn) > 0:
-        new_brick = urn.draw_brick()
-        print("Brick drawn:", new_brick)
+        brick = urn.draw_brick()
+        print("Brick drawn:", brick)
 
         # Place the brick in the tableau
         brick_placed = False
         while brick_placed == False:
-            cmd = input("Select T to place the brick into the tableau, or F to place it into the foundation.\n")
             try:
-                if cmd.upper() == "T":
-                    pile_idx = int(input("Select pile to place the brick (1 to 4).\n"))
-                    brick_placed = tableau.place_new_brick(new_brick, pile_idx)
-                elif cmd.upper() == "F":
-                    stack_idx = int(input("Select foundation stack to place the brick (1 to 6).\n"))
-                    brick_placed = foundation.add_brick(new_brick, stack_idx)
+                pile_idx = int(input("Select pile to place the brick (1 to 4).\n"))
+                brick_placed = tableau.add_brick(brick, pile_idx, new_brick=True)
             except ValueError:
                 continue
 
         print_table(tableau, foundation)
 
-        # Make moves
+        # Make moves on the tableau and foundation
+        print("Make your moves")
+        cmd = ""
+        while cmd.upper() != "Q":
+            cmd = input("Select command (Q to quit the round).\n")
+            try:
+                if cmd.upper() == 'M':
+                    # Move cards from pile to pile in the tableau
+                    [p1, p2] = input("Enter source and destination pile (1 to 4), separated by space.\n").split()
+                    tableau.tableau_to_tableau(int(p1), int(p2))
+                    print_table(tableau, foundation)
+
+                elif cmd.upper() == 'F':
+                    # Move cards from tableau to foundation
+                    p = int(input("Enter source pile (1 to 4) from which to move a brick into the foundation.\n"))
+                    tableau.tableau_to_foundation(p, foundation)
+                    print_table(tableau, foundation)
+            except ValueError:
+                continue
+
+        print("End of round.\n")
 
 
 if __name__ == '__main__':
