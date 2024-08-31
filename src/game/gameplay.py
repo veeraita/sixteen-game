@@ -18,14 +18,14 @@ def main():
 
     while len(urn) > 0:
         brick = urn.draw_brick()
-        print("Brick drawn:", brick)
+        print("***** Brick drawn:", brick, "*****")
 
         # Place the brick in the tableau
         brick_placed = False
         while brick_placed == False:
             try:
                 pile_idx = int(input("Select pile to place the brick (1 to 4).\n"))
-                brick_placed = tableau.add_brick(brick, pile_idx, new_brick=True)
+                brick_placed = tableau.add_new_brick(brick, pile_idx)
             except ValueError:
                 continue
 
@@ -35,6 +35,9 @@ def main():
         print("Make your moves")
         cmd = ""
         while cmd.upper() != "Q":
+            if foundation.game_won():
+                print("Game won!")
+                break
             cmd = input("Select command (Q to quit the round).\n")
             try:
                 if cmd.upper() == 'M':

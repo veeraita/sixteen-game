@@ -8,43 +8,46 @@ class Tableau():
     def get_max_pile_length(self):
         return len(max(self.piles.values(), key=len))
 
-    def add_brick(self, brick, pile_idx, new_brick=False):
-        if (pile_idx < 1) or (pile_idx > 4):
+    def add_new_brick(self, brick, pile_idx):
+        if pile_idx not in self.piles.keys():
             print("Error: invalid pile number.")
             return False
         
         pile = self.piles[pile_idx]
-        if new_brick:
-            if len(pile) == 0:
-                print(f"Brick {brick} placed in pile {pile_idx}. A new pile started.")
-                pile.append(brick)
-                return True
-            else:
-                print(f"Brick {brick} placed in pile {pile_idx}.")
-                pile.append(brick)
-                return True
+        if len(pile) == 0:
+            print(f"Brick {brick} placed in pile {pile_idx}. A new pile started.")
+            pile.append(brick)
+            return True
         else:
-            if (len(pile) == 0) and (brick.value == MAX_CARD):
-                print(f"Brick {brick} placed in empty pile {pile_idx}.")
-                pile.append(brick)
-                return True
-            elif (len(pile) > 0) and (brick.value == pile[-1].value - 1):
-                print(f"Brick {brick} placed in pile {pile_idx}.")
-                pile.append(brick)
-                return True
-            else:
-                print("Cannot make the move.")
-                return False
+            print(f"Brick {brick} placed in pile {pile_idx}.")
+            pile.append(brick)
+            return True
+            
+    def add_bricks(self, bricks, pile_idx):
+        pile = self.piles[pile_idx]
+
+        if (len(pile) == 0) and (bricks[0].value == MAX_CARD):
+            print(f"Bricks {[str(b) for b in bricks]} moved to empty pile {pile_idx}.")
+            pile.extend(bricks)
+            return True
+        elif (len(pile) > 0) and (bricks[0].is_below(pile[-1])):
+            print(f"Bricks {[str(b) for b in bricks]} moved to pile {pile_idx}.")
+            pile.extend(bricks)
+            return True
+        else:
+            print("Cannot make the move.")
+            return False
         
     def tableau_to_tableau(self, pile1, pile2):
         """
         Check if any cards can be moved from pile1 to pile2, and perform the move.
         """
-        brick = self.piles[pile1][-1]
-        res = self.add_brick(brick, pile2, new_brick=False)
-        if res:
-            self.piles[pile1].pop()
-            return True
+        p1_bricks = self.piles[pile1]
+        for i in range(len(p1_bricks)):
+            if sorted(set(p1_bricks[i:]), key=lambda x: x.value, reverse=True) == p1_bricks[i:]:
+                if self.add_bricks(p1_bricks[i:], pile2):
+                    self.piles[pile1] = p1_bricks[:i]
+                    return True
         return False
     
     def tableau_to_foundation(self, pile_idx, foundation):
