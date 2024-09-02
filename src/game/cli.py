@@ -1,5 +1,5 @@
 from board import Foundation, Tableau, Urn
-from config import TITLE
+from config import *
 
 
 def print_commands():
@@ -95,9 +95,9 @@ def main():
     print_commands()
 
     # Set up the game
-    urn = Urn()
-    tableau = Tableau()
-    foundation = Foundation()
+    urn = Urn(max_rank=MAX_RANK, n_stacks=N_STACKS)
+    tableau = Tableau(max_rank=MAX_RANK, n_piles=N_PILES)
+    foundation = Foundation(max_rank=MAX_RANK, n_stacks=N_STACKS)
 
     # Draw bricks from the urn
     while len(urn) > 0:

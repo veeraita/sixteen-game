@@ -5,12 +5,11 @@ from config import MAX_RANK, N_STACKS
 
 class Urn:
 
-    all_bricks = [
-        Brick(value) for value in range(1, MAX_RANK + 1) for i in range(N_STACKS)
-    ]
-
-    def __init__(self):
-        self.remaining_bricks = self.all_bricks
+    def __init__(self, max_rank=16, n_stacks=6):
+        all_bricks = [
+            Brick(value) for value in range(1, max_rank + 1) for i in range(n_stacks)
+        ]
+        self.remaining_bricks = all_bricks
         random.shuffle(self.remaining_bricks)
 
     def draw_brick(self):

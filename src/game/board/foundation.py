@@ -1,6 +1,3 @@
-from config import MAX_RANK, N_STACKS
-
-
 class Foundation:
     """
     The foundation is the set of stacks to which bricks are collected in order from
@@ -10,9 +7,10 @@ class Foundation:
     In the terminal UI, the top card of each foundation stack is displayed.
     """
 
-    def __init__(self):
-        self.n_piles = 0
-        self.stacks = {i: [] for i in range(1, N_STACKS + 1)}
+    def __init__(self, max_rank=16, n_stacks=6):
+        self.max_rank = max_rank
+        self.n_stacks = n_stacks
+        self.stacks = {i: [] for i in range(1, self.n_stacks + 1)}
 
     def get_top_brick(self, stack_idx):
         stack = self.stacks[stack_idx]
@@ -22,13 +20,14 @@ class Foundation:
 
     def game_won(self):
         """
-        Determine if the game has been won by checking that the top brick
+        Determine if the game has been won by checking that the top brick in each foundation stack 
+        is the game's maximum brick value.
         """
         top_bricks = [self.get_top_brick(i) for i in self.stacks.keys()]
         if None in top_bricks:
             return False
         return all(
-            [self.get_top_brick(i).value == MAX_RANK for i in self.stacks.keys()]
+            [self.get_top_brick(i).value == self.max_rank for i in self.stacks.keys()]
         )
 
     def add_brick(self, brick):
