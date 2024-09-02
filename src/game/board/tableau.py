@@ -7,6 +7,12 @@ class Tableau:
     def get_max_pile_length(self):
         return len(max(self.piles.values(), key=len))
 
+    def get_active_piles(self):
+        """
+        Returns the indices of the piles in the tableau which contain bricks.
+        """
+        return [p for p in self.piles.keys() if len(self.piles[p]) > 0]
+
     def is_valid_pile_idx(self, pile_idx):
         return pile_idx in self.piles.keys()
 
@@ -14,23 +20,11 @@ class Tableau:
         """
         Adds a single newly drawn brick to the specified pile within the tableau.
 
-        This function places the provided brick into the pile identified by `pile_idx`.
-        If the pile is currently empty, it recognizes this as the start of a new pile
-        and prints a corresponding message. If the pile already contains bricks, the
-        brick is simply appended to the end of the pile.
-
-        In both cases, the function prints a message confirming the brick placement and
-        returns `True`.
+        This function places the provided brick into the pile identified by `pile_idx` and returns the pile.
         """
         pile = self.piles[pile_idx]
-        if len(pile) == 0:
-            print(f"Brick {brick} placed in pile {pile_idx}. A new pile started.")
-            pile.append(brick)
-            return True
-        else:
-            print(f"Brick {brick} placed in pile {pile_idx}.")
-            pile.append(brick)
-            return True
+        pile.append(brick)
+        return pile
 
     def add_bricks(self, bricks, pile_idx):
         """
@@ -40,29 +34,21 @@ class Tableau:
         at the specified index (`pile_idx`). The move is valid under the following conditions:
 
         1. If the target pile is empty, the bricks can only be added if the first brick in the sequence
-        has the maximum possible rank (`MAX_RANK`, 16 in the original game).
+        has the maximum possible rank (`max_rank`, 16 in the original game).
         2. If the target pile is not empty, the first brick in the sequence must have a rank that is
         directly below (i.e., lower than) the rank of the brick currently on top of the pile.
 
-        If the move is valid, the bricks are added to the pile, and the function prints a confirmation message
-        and returns `True`. If the move is invalid, the function prints an error message and returns `False`.
+        If the move is valid, the bricks are added to the pile, and the function returns `True`. 
+        If the move is invalid, the function returns `False`.
         """
         pile = self.piles[pile_idx]
 
-        if (len(pile) == 0) and (bricks[0].value == self.max_rank):
-            print(
-                f"Bricks {', '.join([str(b) for b in bricks])} moved to empty pile {pile_idx}."
-            )
-            pile.extend(bricks)
-            return True
-        elif (len(pile) > 0) and (bricks[0].is_below(pile[-1])):
-            print(
-                f"Bricks {', '.join([str(b) for b in bricks])} moved to pile {pile_idx}."
-            )
+        if ((len(pile) == 0) and (bricks[0].value == self.max_rank)) or (
+            (len(pile) > 0) and (bricks[0].is_below(pile[-1]))
+        ):
             pile.extend(bricks)
             return True
         else:
-            print("Cannot make the move.")
             return False
 
     def tableau_to_tableau(self, pile1, pile2):
@@ -79,27 +65,29 @@ class Tableau:
         p1_bricks = self.piles[pile1]
         for i in range(len(p1_bricks)):
             # Check if the bricks are in order from largest to smallest
+            bricks_to_move = p1_bricks[i:]
             if (
-                sorted(set(p1_bricks[i:]), key=lambda x: x.value, reverse=True)
-                == p1_bricks[i:]
+                sorted(set(bricks_to_move), key=lambda x: x.value, reverse=True)
+                == bricks_to_move
             ):
                 # Check if the move is successful
-                if self.add_bricks(p1_bricks[i:], pile2):
+                if self.add_bricks(bricks_to_move, pile2):
                     self.piles[pile1] = p1_bricks[:i]
-                    return True
-        return False
+                    return bricks_to_move
+        return None
 
     def tableau_to_foundation(self, pile_idx, foundation):
         """
         Check if the top brick of the selected tableau pile can be moved to the foundation,
         and if it can, perform the move.
         """
-        brick = self.piles[pile_idx][-1]
-        res = foundation.add_brick(brick)
-        if res:
-            self.piles[pile_idx].pop()
-            return True
-        return False
+        if len(self.piles[pile_idx]) > 0:
+            brick = self.piles[pile_idx][-1]
+            stack_idx = foundation.add_brick(brick)
+            if stack_idx:
+                self.piles[pile_idx].pop()
+                return brick, stack_idx
+        return None, None
 
     def __str__(self):
         tableau_str_rows = ["Tableau\n\t1\t2\t3\t4"]
