@@ -39,18 +39,18 @@ def parse_command(cmd):
     return None
 
 
-def place_brick(tableau, brick):
+def place_brick(game, brick):
     """
     Place a new brick in the pile selected by the user.
     """
     brick_placed = False
     while brick_placed == False:
         try:
-            pile_idx = int(input(f"Select pile to place the brick (1 to {tableau.n_piles}).\n"))
-            if not tableau.is_valid_pile_idx(pile_idx):
+            pile_idx = int(input(f"Select pile to place the brick (1 to {game.tableau.n_piles}).\n"))
+            if not game.tableau.is_valid_pile_idx(pile_idx):
                 print("Error: invalid pile number.")
                 continue
-            pile = tableau.add_new_brick(brick, pile_idx)
+            pile = game.move_new_brick_to_tableau(brick, pile_idx)
             if len(pile) == 1:
                 print(f"Brick {brick} placed in pile {pile_idx}. A new pile started.")
             else:
@@ -62,10 +62,8 @@ def place_brick(tableau, brick):
 
 def arrange_bricks(game):
     """
-    Perform the second phase of each round where bricks can be
-    moved between piles in the tableau and into the foundation.
+    Perform the second phase of each round where bricks can be moved between piles in the tableau and into the foundation.
     """
-    print("***** Make your moves *****")
     cmd = None
     while cmd != "Q" and not game.game_won():
         active_piles = game.tableau.get_active_piles()
@@ -84,7 +82,7 @@ def arrange_bricks(game):
                 ):
                     print("Error: invalid pile number.")
                     continue
-                moved_bricks = game.tableau.tableau_to_tableau(int(p1), int(p2))
+                moved_bricks = game.move_tableau_to_tableau(int(p1), int(p2))
                 if not moved_bricks:
                     print("Cannot make the move.")
                 else:
@@ -92,11 +90,11 @@ def arrange_bricks(game):
                         print(
                             f"Bricks {', '.join([str(b) for b in moved_bricks])} moved from pile {p1} to empty pile {p2}."
                         )
-                        active_piles = game.tableau.get_active_piles()
                     else:
                         print(
                             f"Bricks {', '.join([str(b) for b in moved_bricks])} moved from pile {p1} to pile {p2}."
                         )
+                    active_piles = game.tableau.get_active_piles()
 
                 print_table(game)
 
@@ -110,14 +108,14 @@ def arrange_bricks(game):
                 if not game.tableau.is_valid_pile_idx(p):
                     print("Error: invalid pile number.")
                     continue
-                moved_brick, stack = game.tableau.tableau_to_foundation(p, game.foundation)
+                moved_brick, stack = game.move_tableau_to_foundation(p)
                 if not moved_brick:
-                    print(f"Cannot move a brick to the foundation from stack {stack}.")
+                    print(f"Cannot move a brick to the foundation from pile {p}.")
                 else:
                     print(f"Brick {moved_brick} moved to foundation stack {stack}.")
                     if game.foundation.get_active_stacks() > active_stacks:
                         print("New foundation stack started.")
-                        active_stacks = game.foundation.get_active_stacks()
+                    active_stacks = game.foundation.get_active_stacks()
 
                 print_table(game)
 
@@ -138,11 +136,12 @@ def main():
     while len(game.urn) > 0:
         brick = game.urn.draw_brick()
         print("***** Brick drawn:", brick, "*****")
-        place_brick(game.tableau, brick)
+        place_brick(game, brick)
 
         print_table(game)
 
         # Make moves on the tableau and foundation
+        print("***** Make your moves *****")
         arrange_bricks(game)
 
         if not game.game_won():
@@ -151,7 +150,7 @@ def main():
             print("Game won!")
 
     if not game.game_won():
-        print("The urn is empty! Time to make your last moves.\n")
+        print("***** The urn is empty! Time to make your last moves. *****\n")
         arrange_bricks(game)
 
         if not game.game_won():
