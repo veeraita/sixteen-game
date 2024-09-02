@@ -1,4 +1,3 @@
-from board import Foundation, Tableau, Urn
 from game import Game
 from config import *
 

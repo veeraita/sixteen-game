@@ -1,10 +1,9 @@
-from board import Foundation, Tableau, Urn
-from config import *
+from .board import Foundation, Tableau, Urn
 
 
 class Game:
 
-    def __init__(self, max_rank=MAX_RANK, n_stacks=N_STACKS, n_piles=N_PILES):
+    def __init__(self, max_rank=16, n_stacks=6, n_piles=4):
         self.max_rank = max_rank
         self.n_stacks = n_stacks
         self.n_piles = n_piles
