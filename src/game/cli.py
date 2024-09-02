@@ -1,4 +1,5 @@
 from board import Foundation, Tableau, Urn
+from game import Game
 from config import *
 
 
@@ -16,39 +17,39 @@ def print_commands():
     print()
 
 
-def print_table(tableau, foundation):
+def print_table(game):
     """
     Display the current state of the foundation and the tableau in the terminal.
     """
     print()
     print("=" * 60)
-    print(foundation)
+    print(game.foundation)
     print("=" * 60)
-    print(tableau)
+    print(game.tableau)
     print("=" * 60)
     print()
 
 
-def draw_and_place_brick(urn, tableau):
+def draw_and_place_brick(game):
     """
     Draw a brick from the urn and place it in the pile selected by the user.
     """
-    brick = urn.draw_brick()
+    brick = game.urn.draw_brick()
     print("***** Brick drawn:", brick, "*****")
 
     brick_placed = False
     while brick_placed == False:
         try:
             pile_idx = int(input("Select pile to place the brick (1 to 4).\n"))
-            if not tableau.is_valid_pile_idx(pile_idx):
+            if not game.tableau.is_valid_pile_idx(pile_idx):
                 print("Error: invalid pile number.")
                 continue
-            brick_placed = tableau.add_new_brick(brick, pile_idx)
+            brick_placed = game.tableau.add_new_brick(brick, pile_idx)
         except ValueError:
             continue
 
 
-def arrange_bricks(tableau, foundation):
+def arrange_bricks(game):
     """
     Perform the second phase of each round where bricks can be
     moved between piles in the tableau and into the foundation.
@@ -56,7 +57,7 @@ def arrange_bricks(tableau, foundation):
     print("***** Make your moves *****")
     cmd = ""
     while cmd.upper() != "Q":
-        if foundation.game_won():
+        if game.foundation.game_won():
             print("Game won!")
             break
         cmd = input("Select command (q to quit the round).\n")
@@ -66,11 +67,11 @@ def arrange_bricks(tableau, foundation):
                 [p1, p2] = input(
                     "Enter source and destination pile (1 to 4), separated by space.\n"
                 ).split()
-                if not (tableau.is_valid_pile_idx(int(p1)) and tableau.is_valid_pile_idx(int(p2))):
+                if not (game.tableau.is_valid_pile_idx(int(p1)) and game.tableau.is_valid_pile_idx(int(p2))):
                     print("Error: invalid pile number.")
                     continue
-                tableau.tableau_to_tableau(int(p1), int(p2))
-                print_table(tableau, foundation)
+                game.tableau.tableau_to_tableau(int(p1), int(p2))
+                print_table(game)
 
             elif cmd.upper() == "F":
                 # Move cards from tableau to foundation
@@ -79,11 +80,11 @@ def arrange_bricks(tableau, foundation):
                         "Enter source pile (1 to 4) from which to move a brick into the foundation.\n"
                     )
                 )
-                if not tableau.is_valid_pile_idx(p):
+                if not game.tableau.is_valid_pile_idx(p):
                     print("Error: invalid pile number.")
                     continue
-                tableau.tableau_to_foundation(p, foundation)
-                print_table(tableau, foundation)
+                game.tableau.tableau_to_foundation(p, game.foundation)
+                print_table(game)
             elif cmd.upper() == "H":
                 print_commands()
         except ValueError:
@@ -95,27 +96,25 @@ def main():
     print_commands()
 
     # Set up the game
-    urn = Urn(max_rank=MAX_RANK, n_stacks=N_STACKS)
-    tableau = Tableau(max_rank=MAX_RANK, n_piles=N_PILES)
-    foundation = Foundation(max_rank=MAX_RANK, n_stacks=N_STACKS)
+    game = Game(max_rank=MAX_RANK, n_stacks=N_STACKS, n_piles=N_PILES)
 
     # Draw bricks from the urn
-    while len(urn) > 0:
-        draw_and_place_brick(urn, tableau)
+    while len(game.urn) > 0:
+        draw_and_place_brick(game)
 
-        print_table(tableau, foundation)
+        print_table(game)
 
         # Make moves on the tableau and foundation
-        arrange_bricks(tableau, foundation)
+        arrange_bricks(game)
 
-        if not foundation.game_won():
+        if not game.game_won():
             print("End of round.\n")
 
-    if not foundation.game_won():
+    if not game.game_won():
         print("The urn is empty! Time to make your last moves.\n")
-        arrange_bricks(tableau, foundation)
+        arrange_bricks(game)
 
-    if not foundation.game_won():
+    if not game.game_won():
         print("Better luck next time!")
 
 
